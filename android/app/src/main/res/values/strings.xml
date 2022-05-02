@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 채널 아이디 지정 => AndroidManifest에서 불러와서 사용함, Notification 종류가 다양할때 구분하기 위함 -->
+    <string name="default_notification_channel_id" translatable="false">sample_channel_id</string>
+</resources>
