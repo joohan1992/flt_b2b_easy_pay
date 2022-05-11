@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
@@ -12,21 +12,27 @@ import 'NotificationController.dart';
 
 void main() async {
   // 비동기로 데이터들이 준비가 되고 runApp 메소드가 실행되도록 하는 코드
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // Firebase 초기화
   await Firebase.initializeApp();
-  // Foreground때 Push notification 띄워주기 위한 설정
-  _initNotiSetting();
 
   _initAwesomeNotification();
 
+  _initAfterPagnation();  // 스플래시 화면에서 확인하거나 초기화해야하는 작업 처리
+
   runApp(const MyApp());
+}
+
+void _initAfterPagnation() {
+  // 처리가 완료되면 스플래시를 닫음
+  FlutterNativeSplash.remove();
 }
 
 void _initAwesomeNotification() {
   AwesomeNotifications().initialize(
   // set the icon to null if you want to use the default app icon
-    'resource://drawable/res_app_icon',
+    null,
     [
       NotificationChannel(
           channelGroupKey: 'basic_channel_group',
@@ -53,6 +59,20 @@ void _initAwesomeNotification() {
       AwesomeNotifications().requestPermissionToSendNotifications();
     }
   });
+
+  AwesomeNotifications().actionStream.listen(
+          (ReceivedNotification receivedNotification){
+        print("_onAwesomeNotificationsActionStream: $receivedNotification");
+        /*Navigator.of(context).pushNamed(
+            '/NotificationPage',
+            arguments: {
+              // your page params. I recommend you to pass the
+              // entire *receivedNotification* object
+              id: receivedNotification.id
+            }
+        );*/
+      }
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -61,18 +81,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    AwesomeNotifications().actionStream.listen(
-            (ReceivedNotification receivedNotification){
-          /*Navigator.of(context).pushNamed(
-              '/NotificationPage',
-              arguments: {
-                // your page params. I recommend you to pass the
-                // entire *receivedNotification* object
-                id: receivedNotification.id
-              }
-          );*/
-        }
-    );
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -106,26 +114,4 @@ class MyApp extends StatelessWidget {
       //home: const MyHomePage(title: ),
     );
   }
-}
-
-void _initNotiSetting() async {
-  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  const initSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-  final initSettingsIOS = IOSInitializationSettings(
-    requestSoundPermission: true,  // true로 바꾸면 앱 실행할때 바로 권한 물어봄
-    requestBadgePermission: false,
-    requestAlertPermission: false,
-  );
-  final initSettings = InitializationSettings(
-    android: initSettingsAndroid,
-    iOS: initSettingsIOS,
-  );
-  await flutterLocalNotificationsPlugin.initialize(
-      initSettings,
-      onSelectNotification: onSelectNotification
-  );
-}
-
-void onSelectNotification(String? payload) async {
-  // @TODO Notification 클릭 시 실행할 동작 정의
 }

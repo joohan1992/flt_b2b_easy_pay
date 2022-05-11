@@ -1,15 +1,16 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 
 
 // Background인 상황에서 메시지 컨트롤
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
   Map<String, dynamic> messageData = message.data;
   print("_onBackgroundMessage: ${message.toMap()}");
+  buildNotification(message);
 }
 
 class NotificationController extends GetxController {
@@ -76,6 +77,7 @@ class NotificationController extends GetxController {
   Future<void>? _onResume(RemoteMessage message) {
     Map<String, dynamic> data = message.data;
     print("_onResume: ${message.toMap()}");
+    buildNotification(message);
     return null;
   }
 
@@ -97,75 +99,24 @@ class NotificationController extends GetxController {
   Future<void>? _onMessage(RemoteMessage message) {
     Map<String, dynamic> data = message.data;
     print("_onMessage: ${message.toMap()}");
-    // Foreground 수신시 Notification display(https://velog.io/@adbr/flutter-local-notification-Quick-Start2#3-maindart-init-settings 참고)
+    // Foreground 수신시 Notification display
     buildNotification(message);
     return null;
   }
-
-  void buildNotification(RemoteMessage message) async {
-    final notiTitle = message.notification!.title;
-    final notiBody = message.notification!.body;
-
-    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    /*final result = await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );*/
-
-    const AndroidNotificationDetails android = AndroidNotificationDetails(
-      'channel id',
-      'channel_name',
-      channelDescription: 'channel description',
-      importance: Importance.max,
-      priority: Priority.max,
-      styleInformation: BigTextStyleInformation(''),
-    );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: android);
-    await flutterLocalNotificationsPlugin.show(
-        0, notiTitle, notiBody, platformChannelSpecifics,
-        payload: 'item x');
-
-    // var ios = IOSNotificationDetails();
-    // var detail = NotificationDetails(android: android, iOS: ios);
-
-    /*
-    if (result != null && result) {
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-          ?.deleteNotificationChannelGroup('id');
-
-      await flutterLocalNotificationsPlugin.zonedSchedule(
-        0, // id는 unique해야합니다. int값
-        notiTitle,
-        notiDesc,
-        _setNotiTime(),
-        detail,
-        androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-    }
-     */
-  }
-
-  tz.TZDateTime _setNotiTime() {
-    tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
-
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
-        0, 0, 5);
-
-    return scheduledDate;
-  }
 }
 
+void buildNotification(RemoteMessage message) async {
+  AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: message.data['title'],
+        body: message.data['body'],
+        notificationLayout: NotificationLayout.BigPicture,
+        bigPicture: message.data['image'],
+      )
+  );
+}
 /*
 // 메시지 포맷
 {

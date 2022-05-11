@@ -39,6 +39,7 @@ dependencies:
   get: ^4.6.1
   flutter_local_notifications: ^9.4.1 # foreground에서 Notification 띄워주는 패키지
   awesome_notifications: any  # foreground에서 이미지가 포함된 Notification 띄워주기 위한 패키지
+  flutter_native_splash: ^2.1.6 # splash 화면 쉽게 구현할 수 있게 해주는 패키지
 
 dev_dependencies:
   flutter_test:
