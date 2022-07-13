@@ -1,9 +1,9 @@
 import 'package:flt_b2b_easy_pay/common/BottomBar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../NotificationController.dart';
 import '../common/Header.dart';
+import '../widgets/ImagePost.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -55,11 +55,31 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
     if(currentTab == 0) {
       return buildFeed();
     } else {
-      return buildFeed();
+      return Container();
     }
   }
 
   buildFeed() {
+    return Container(
+      child: FutureBuilder(
+          future: getImagePosts(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container(
+                  alignment: FractionalOffset.center,
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: CircularProgressIndicator(),
+              );
+            }
+            else {
+              return ListView(children: snapshot.data as List<Widget>);
+            }
+          }
+      ),
+    );
+  }
+
+  buildActivityFeed() {
     return Container(
       child: FutureBuilder(
         future: getFeed(),
@@ -77,6 +97,30 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         }
       ),
     );
+  }
+
+  getImagePosts() async {
+    List<ImagePost> items = [];
+
+    items.add(const ImagePost(
+      media: ['https://a.cdn-hotels.com/gdcs/production143/d1112/c4fedab1-4041-4db5-9245-97439472cf2c.jpg'],
+      username: 'jhseong',
+      location: 'Seoul',
+      description: '게시글\n#렌더링 #로맨틱 #성공적',
+      likes: null,
+      postId: '1',
+      ownerId: '1',
+    ));
+    items.add(const ImagePost(
+      media: ['https://answers.opencv.org/upfiles/13921515003259208.png', 'https://i.stack.imgur.com/3ETM1.jpg'],
+      username: 'Jake',
+      location: 'Belgium',
+      description: 'What are you looking for? #L2B',
+      likes: null,
+      postId: '2',
+      ownerId: '2',
+    ));
+    return items;
   }
 
   getFeed() async {
