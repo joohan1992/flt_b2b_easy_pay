@@ -7,12 +7,15 @@ import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flt_b2b_easy_pay/pages/HomePage.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'dart:io';
 
 import 'NotificationController.dart';
 
 void main() async {
   // 비동기로 데이터들이 준비가 되고 runApp 메소드가 실행되도록 하는 코드
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // 루트 폴더의 flutter_native_splash.yaml을 작성하고\
+  // flutter pub run flutter_native_splash:create --path=flutter_native_splash.yaml 터미널에서 실행하여 적용
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // Firebase 초기화
   await Firebase.initializeApp();
@@ -20,11 +23,13 @@ void main() async {
   _initAwesomeNotification();
 
   _initAfterPagnation();  // 스플래시 화면에서 확인하거나 초기화해야하는 작업 처리
-
-  runApp(const MyApp());
 }
 
 void _initAfterPagnation() {
+  runApp(const MyApp());
+
+  sleep(const Duration(seconds:1));
+
   // 처리가 완료되면 스플래시를 닫음
   FlutterNativeSplash.remove();
 }
@@ -95,7 +100,6 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      //
       initialBinding: BindingsBuilder(
             () {
           Get.put(NotificationController());

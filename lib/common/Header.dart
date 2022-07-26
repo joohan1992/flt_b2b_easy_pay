@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Header extends StatefulWidget implements PreferredSizeWidget {
   Header({Key? key, required String page}) : preferredSize = Size.fromHeight(kToolbarHeight), _page = page, super(key: key);
@@ -29,7 +30,7 @@ class _CustomAppBarState extends State<Header>{
         ),
         SizedBox(width:16),
         Icon(
-          Icons.favorite_outlined,
+          FontAwesomeIcons.heart,
           color:Colors.black,
         ),
         SizedBox(width:16),

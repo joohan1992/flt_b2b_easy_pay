@@ -99,6 +99,7 @@ class NotificationController extends GetxController {
   Future<void>? _onMessage(RemoteMessage message) {
     Map<String, dynamic> data = message.data;
     print("_onMessage: ${message.toMap()}");
+    print("data: ${data.toString()}");
     // Foreground 수신시 Notification display
     buildNotification(message);
     return null;
